@@ -10,20 +10,21 @@ const mongoose = require('mongoose');
 
 const app = express();
 
-//load routes
+// Load routes
 const ideas = require('./routes/ideas');
 const users = require('./routes/users');
 
-//Passport Config
+// Passport Config
 require('./config/passport')(passport);
-
-//DB config
+// DB Config
 const db = require('./config/database');
 
 // Map global promise - get rid of warning
 mongoose.Promise = global.Promise;
 // Connect to mongoose
-mongoose.connect(db.mongoURI)
+mongoose.connect(db.mongoURI, {
+  useMongoClient: true
+})
   .then(() => console.log('MongoDB Connected...'))
   .catch(err => console.log(err));
 
@@ -37,7 +38,7 @@ app.set('view engine', 'handlebars');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-//Static folder
+// Static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Method override middleware
@@ -50,7 +51,7 @@ app.use(session({
   saveUninitialized: true
 }));
 
-//Passport middleware
+// Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -78,7 +79,8 @@ app.get('/about', (req, res) => {
   res.render('about');
 });
 
-//Use routes 
+
+// Use routes
 app.use('/ideas', ideas);
 app.use('/users', users);
 
